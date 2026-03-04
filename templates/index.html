@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="scanline"></div>
+<div class="app-shell">
+  <header class="hud-header">
+    <div class="hud-title">
+      <h1>Octane Requirement Console</h1>
+      <span>knock risk vs temperature</span>
+    </div>
+    <div class="hud-badges">
+      <div class="pill-toggle" id="units-toggle">
+        <button type="button" data-units="Metric" class="active">Metric</button>
+        <button type="button" data-units="Standard">Standard</button>
+      </div>
+    </div>
+  </header>
+
+  <form id="config-form">
+    <main class="main-panel">
+      <!-- LEFT CARD: config -->
+      <section class="card" id="config-panel">
+        <div class="card-content">
+          <div class="card-header">
+            <div class="card-title">Vehicle + Environment</div>
+            <div class="status-dot"></div>
+          </div>
+          <div class="load-beam"></div>
+
+          <div class="fields-grid">
+            <div>
+              <label for="year">Year</label>
+              <input type="number" id="year" name="year" placeholder="Year" min="1950" max="2035">
+            </div>
+            <div>
+              <label for="make">Make</label>
+              <input type="text" id="make" name="make" placeholder="Make">
+            </div>
+            <div>
+              <label for="model">Model</label>
+              <input type="text" id="model" name="model" placeholder="Model">
+            </div>
+            <div>
+              <label for="altitude" id="altitude-label">Altitude (m)</label>
+              <input type="number" id="altitude" name="altitude" placeholder="0">
+            </div>
+          </div>
+
+          <div class="button-row" style="margin-top: 16px;">
+            <button type="button" class="primary-btn" id="load-btn">
+              <span class="icon">▣</span>
+              Load
+            </button>
+            <div class="tiny">
+              DB status: <span id="db-status" class="readout">no entry, sliders active</span>
+            </div>
+          </div>
+
+          <div class="image-view" id="image-view" style="margin-top: 16px;">
+            <canvas id="pixel-canvas" aria-label="Vehicle image preview"></canvas>
+            <!-- <div class="image-status tiny" id="image-status">Enter year, make, model to load image.</div> -->
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT CARD: results -->
+      <section class="card page-hidden" id="results-panel">
+      <div class="card-content">
+        <div class="card-header">
+          <div class="card-title">Results</div>
+          <div class="status-dot"></div>
+        </div>
+
+        <div class="view-toggle-row">
+          <div class="pill-toggle" id="view-toggle">
+            <button type="button" data-view="chart" class="active">Octane vs Temp</button>
+            <button type="button" data-view="formulas">Formula view</button>
+          </div>
+          <span class="tiny" id="view-caption">Temperature sweep</span>
+        </div>
+
+        <div id="chart-view">
+          <div class="fields-grid" id="chart-controls">
+            <div>
+              <div class="tiny" id="chart-info">Current configuration summary</div>
+            </div>
+          </div>
+
+          <div class="button-row" style="margin-top: 12px;" id="chart-actions">
+            <button type="button" class="ghost-btn" id="reset-btn">
+              Reset
+            </button>
+            <span class="tiny" id="status-line">
+              Press Compute to update curve.
+            </span>
+          </div>
+
+          <div class="chart-container" id="chart-container">
+            <canvas id="octane-chart"></canvas>
+          </div>
+
+          <div class="chart-legend" id="chart-legend">
+            <div class="chip">Y: required pump octane (AKI)</div>
+            <div class="chip">X: ambient temperature</div>
+          </div>
+        </div>
+
+        <div id="formula-view" class="page-hidden">
+          <div class="formula-heading">Current configuration</div>
+          <div class="summary-grid" id="summary-grid"></div>
+
+          <div class="formula-block">
+            <div class="formula-heading">1. Standard atmosphere</div>
+            <code id="formula-atm"></code>
+          </div>
+
+          <div class="formula-block">
+            <div class="formula-heading">2. Compression and boost</div>
+            <code id="formula-compression"></code>
+          </div>
+
+          <div class="formula-block">
+            <div class="formula-heading">3. Temperature and engine state</div>
+            <code id="formula-temp"></code>
+          </div>
+
+          <div class="formula-block">
+            <div class="formula-heading">4. Combined octane requirement</div>
+            <code id="formula-octane"></code>
+          </div>
+        </div>
+      </div>
+    </section>
+    </main>
+
+    <section class="card engine-panel page-hidden" id="engine-panel">
+      <div class="card-content">
+        <div class="card-header">
+          <div class="card-title">Engine Parameters</div>
+          <div class="status-dot"></div>
+        </div>
+        <div class="load-beam"></div>
+
+        <div class="engine-grid">
+          <div class="slider-row">
+            <label>Aspiration</label>
+            <div class="pill-toggle" id="aspiration-toggle">
+              <button type="button" data-value="NA" class="active">NA</button>
+              <button type="button" data-value="Turbo">Boost</button>
+            </div>
+          </div>
+
+          <div class="engine-split">
+            <div class="slider-row">
+              <label>Engine state</label>
+              <div class="pill-toggle" id="maintenance-toggle">
+                <button type="button" data-value="Well" class="active">Well maintained</button>
+                <button type="button" data-value="Poor">Poorly maintained</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="slider-row">
+              <div class="field-inline">
+                <label for="mileage">Engine mileage</label>
+                <span class="readout" id="mileage-readout">80k miles</span>
+              </div>
+              <input type="range" id="mileage" min="0" max="250" step="5" value="80">
+          </div>
+
+          <div class="slider-row">
+            <div class="field-inline">
+              <label for="compression">Compression ratio</label>
+              <span class="readout" id="compression-readout">10.0 : 1</span>
+            </div>
+            <input type="range" id="compression" min="7.0" max="13.0" step="0.1" value="10.0">
+          </div>
+
+          <div class="slider-row">
+            <div class="field-inline">
+              <label for="iat">Intake air temp rise over ambient</label>
+              <span class="readout" id="iat-readout">+20°</span>
+            </div>
+            <input type="range" id="iat" min="0" max="60" step="1" value="20">
+          </div>
+
+          <div class="slider-row">
+            <div class="field-inline">
+              <label for="base-octane">Base octane at sea level (AKI)</label>
+              <span class="readout" id="base-octane-readout">91</span>
+            </div>
+            <input type="range" id="base-octane" min="85" max="100" step="1" value="91">
+          </div>
+        </div>
+
+        <div class="button-row" style="margin-top: 16px;">
+          <button type="button" class="primary-btn" id="compute-btn">
+            <span class="icon">▶</span>
+            Calculate
+          </button>
+          <div class="tiny" id="engine-caption">Ready to compute octane.</div>
+        </div>
+      </div>
+    </section>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{% block title %}Octane vs Temperature / Engine State{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Chart.js (self-hosted) -->
+  <script src="{{ url_for('static', filename='js/chart.umd.js') }}"></script>
+  <!-- Main CSS -->
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/main.css') }}"
+  />
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  {% block content %}{% endblock %}
+
+  <!-- Octane math helpers (before DOM) -->
+  <script src="{{ url_for('static', filename='js/octane.js') }}"></script>
+  <!-- Main JS (after DOM) -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
