@@ -19,7 +19,7 @@ def fetch_google_image(query):
     if cached:
         return cached, None
 
-    api_key = "AIzaSyDiN7SxeG7StdE9QUVPjTBQUHc6tDJzUCI" #os.environ.get("GOOGLE_CSE_API_KEY")
+    api_key = "REDACTED" #os.environ.get("GOOGLE_CSE_API_KEY")
     cx = "b565745addb9f4619" #os.environ.get("GOOGLE_CSE_CX")
     if not api_key or not cx:
         return None, "missing_api_key"
